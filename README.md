@@ -42,7 +42,7 @@ gitlog-mcp --repo /path/to/your/repo
 # 3. Or add directly to your agent's MCP config (see below)
 ```
 
-> `pip install gitlog-mcp` will work once this is published to PyPI. Until then, install from source as shown above.
+> `pip install gitlog-mcp` will work once this is published to PyPI. Until then, install from source as shown above. There's a real, tested publish pipeline ready to go (tag-triggered, PyPI Trusted Publishing) — see [RELEASING.md](RELEASING.md) for the full process.
 
 ### Claude Code config
 
@@ -112,12 +112,14 @@ Deliberately small. You can read the whole thing in an afternoon — that's a fe
 
 PRs welcome. Small, focused, well-tested changes only. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
+Release process and versioning are documented in [RELEASING.md](RELEASING.md).
+
 ## Roadmap
 
 - [x] `--repo` auto-detection from cwd
 - [ ] Structured JSON output for all tools
 - [ ] GitHub/GitLab remote integration
-- [ ] Tests + CI badge
+- [x] Tests + CI badge
 
 ## License
 

@@ -7,12 +7,13 @@ Maintained by the PM agent. Ordered by impact vs. effort.
 - [x] README + quick start
 - [x] Agents + skills for the maintainer
 - [ ] Push to GitHub + set topic tags
-- [ ] Tests + CI badge
+- [x] Tests + CI badge
 
 ## Next (v0.2)
 - [x] `--repo` auto-detection from cwd
 - [ ] Structured JSON output for all tools
-- [ ] Test suite + fixtures
+- [x] Test suite + fixtures
+- [ ] Publish to PyPI (`pip install gitlog-mcp`)
 
 ## Later (v0.3+)
 - [ ] GitHub/GitLab remote integration

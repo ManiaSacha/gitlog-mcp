@@ -6,7 +6,8 @@
 
 > "What changed in this repo?" is the question every AI agent gets wrong. This fixes it.
 
-![GitHub stars](https://img.shields.io/badge/MCP-server-4B32C3)
+![CI](https://github.com/ManiaSacha/gitlog-mcp/actions/workflows/ci.yml/badge.svg)
+![GitHub stars](https://img.shields.io/github/stars/ManiaSacha/gitlog-mcp)
 ![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Zero deps](https://img.shields.io/badge/Zero%20runtime%20deps-%E2%9C%93-brightgreen)
@@ -38,8 +39,7 @@ pip install -e .
 gitlog-mcp
 gitlog-mcp --repo /path/to/your/repo
 
-# 3. Or add to Claude Code / Cursor
-npx @modelcontextprotocol/inspector gitlog-mcp --repo .
+# 3. Or add directly to your agent's MCP config (see below)
 ```
 
 > `pip install gitlog-mcp` will work once this is published to PyPI. Until then, install from source as shown above.
@@ -55,6 +55,27 @@ npx @modelcontextprotocol/inspector gitlog-mcp --repo .
     }
   }
 }
+```
+
+### Cursor config (`.cursor/mcp.json`)
+
+```json
+{
+  "mcpServers": {
+    "gitlog": {
+      "command": "gitlog-mcp",
+      "args": ["--repo", "."]
+    }
+  }
+}
+```
+
+### Debug it standalone
+
+Want to poke at the tools directly before wiring up an agent? The [MCP Inspector](https://github.com/modelcontextprotocol/inspector) gives you a UI to call each tool by hand:
+
+```bash
+npx @modelcontextprotocol/inspector gitlog-mcp --repo .
 ```
 
 ## Example agent prompts
@@ -79,7 +100,7 @@ npx @modelcontextprotocol/inspector gitlog-mcp --repo .
 ## Architecture
 
 ```
-gitlog-mcp (single file, ~400 lines)
+gitlog-mcp (single file, ~250 lines)
 ├── FastMCP server (stdio transport)
 ├── GitRunner — thin wrapper over `git` CLI
 └── Tools — each maps to a git subcommand + parsing

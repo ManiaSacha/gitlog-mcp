@@ -5,7 +5,7 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and
 this project adheres to [Semantic Versioning](https://semver.org/).
 
-No version of `gitlog-mcp` has been published to PyPI yet. `v0.1.1` below is
+No version of `gitlog-mcp` has been published to PyPI yet. `v0.1.2` below is
 the first tagged release, covering everything from the initial commit
 through the current `main`.
 
@@ -13,7 +13,7 @@ through the current `main`.
 
 Nothing yet.
 
-## [v0.1.1] - 2026-08-16
+## [v0.1.2] - 2026-08-16
 
 ### Added
 - Initial release of `gitlog-mcp`, an MCP (Model Context Protocol) server
@@ -103,5 +103,5 @@ Nothing yet.
 - Added this `CHANGELOG.md`, generated from the project's actual git
   history.
 
-[Unreleased]: https://github.com/ManiaSacha/gitlog-mcp/compare/v0.1.1...HEAD
-[v0.1.1]: https://github.com/ManiaSacha/gitlog-mcp/releases/tag/v0.1.1
+[Unreleased]: https://github.com/ManiaSacha/gitlog-mcp/compare/v0.1.2...HEAD
+[v0.1.2]: https://github.com/ManiaSacha/gitlog-mcp/releases/tag/v0.1.2

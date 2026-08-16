@@ -146,3 +146,23 @@ def test_blame_file_flag_like_path_does_not_leak_or_crash(tmp_path):
     secret.write_text("TOP SECRET DATA 12345\n")
     out = _run_server(repo, "blame_file", f"--contents={secret}")
     assert "TOP SECRET" not in out
+
+
+def test_changelog_handles_non_cp1252_commit_message(tmp_path):
+    """Regression test: on Windows with a non-UTF-8 locale (cp1252 is the
+    default on most English/Western-European installs), decoding git's
+    UTF-8 output with the system locale used to raise an uncaught
+    UnicodeDecodeError for any byte undefined in cp1252 (e.g. the zero-
+    width joiner used to build compound emoji) — surfaced to the client as
+    a confusing "'NoneType' object has no attribute 'strip'" AttributeError
+    instead of a clean result or error string."""
+    repo = _make_fixture_repo(tmp_path)
+    msg_file = tmp_path / "msg.txt"
+    # U+200D (ZERO WIDTH JOINER) encodes to UTF-8 bytes that include 0x8D,
+    # which has no mapping in cp1252.
+    msg_file.write_text("test: zwj emoji \U0001F468‍\U0001F469 commit\n", encoding="utf-8")
+    subprocess.run(["git", "commit", "--allow-empty", "-q", "-F", str(msg_file)],
+                    cwd=repo, check=True)
+    out = _run_server(repo, "changelog")
+    assert "Error" not in out
+    assert "zwj emoji" in out

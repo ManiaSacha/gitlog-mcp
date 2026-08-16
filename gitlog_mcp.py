@@ -38,6 +38,8 @@ def git(*args: str) -> str:
             ["git", "-C", str(REPO), *args],
             capture_output=True,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             check=True,
             stdin=subprocess.DEVNULL,
             timeout=30,

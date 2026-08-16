@@ -39,6 +39,7 @@ def git(*args: str) -> str:
             capture_output=True,
             text=True,
             check=True,
+            stdin=subprocess.DEVNULL,
         )
         return proc.stdout.strip()
     except subprocess.CalledProcessError as exc:
@@ -73,24 +74,25 @@ def commit_count() -> int:
 def changelog(since: str = "HEAD~20", until: str = "HEAD") -> str:
     """Generate a grouped changelog for a commit range (e.g. v1.2.0..v1.3.0)."""
     try:
-        # Default range assumes >=20 commits exist; clamp for small/young repos
-        # instead of failing with "unknown revision".
+        fmt = "%x00type=%h%x00scope=%s%x00author=%aN%x00date=%aI"
+
+        # Default range assumes >=20 commits exist. For smaller/younger repos,
+        # a `HEAD~N..HEAD` range would either fail ("unknown revision") or
+        # silently exclude the root commit (two-dot ranges are exclusive of
+        # the lower bound), so show the full history via max-count instead.
         if since == "HEAD~20":
             total = commit_count()
             if total == 0:
                 return "No commits found in that range."
-            since = f"HEAD~{min(20, total - 1)}" if total > 1 else "HEAD"
-            if since == "HEAD":
-                # Single-commit repo: show that one commit.
-                raw = git("log", "--pretty=format:" + "%x00type=%h%x00scope=%s%x00author=%aN%x00date=%aI", "-1")
+            if total <= 20:
+                raw = git("log", "--pretty=format:" + fmt, f"-n{total}")
                 commits = [parse_commit(l) for l in raw.splitlines() if l.strip()]
-                lines = [f"## Changelog ({since} → {until})", ""]
+                lines = [f"## Changelog (full history → {until})", ""]
                 for c in commits:
                     lines.append(f"- **{c.get('scope', '?')}** — {c.get('type', '?')} "
                                  f"({c.get('author', '?')}, {c.get('date', '?')[:10]})")
                 return "\n".join(lines)
 
-        fmt = "%x00type=%h%x00scope=%s%x00author=%aN%x00date=%aI"
         raw = git("log", "--pretty=format:" + fmt, f"{since}..{until}")
         commits = [parse_commit(l) for l in raw.splitlines() if l.strip()]
         if not commits:

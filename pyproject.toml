@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "Give AI agents superpowers over git history — changelogs, commit analysis, blame, and release notes via MCP."
 readme = "README.md"
 dependencies = [
-    "mcp>=1.0",
+    "mcp>=1.0,<2.0",
 ]
 requires-python = ">=3.10"
 license = { text = "MIT" }

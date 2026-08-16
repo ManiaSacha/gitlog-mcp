@@ -43,6 +43,8 @@ def git(*args: str) -> str:
         return proc.stdout.strip()
     except subprocess.CalledProcessError as exc:
         raise GitError(f"git {args[0]} failed: {exc.stderr.strip()}") from exc
+    except FileNotFoundError as exc:
+        raise GitError("git executable not found on PATH.") from exc
 
 
 def parse_commit(line: str) -> dict:
@@ -55,43 +57,80 @@ def parse_commit(line: str) -> dict:
     return fields
 
 
+def commit_count() -> int:
+    """Total number of commits reachable from HEAD (0 for an empty repo)."""
+    try:
+        raw = git("rev-list", "--count", "HEAD")
+        return int(raw) if raw else 0
+    except GitError:
+        return 0
+
+
 # --------------------------------------------------------------------------- #
 # Tools
 # --------------------------------------------------------------------------- #
 @mcp.tool()
 def changelog(since: str = "HEAD~20", until: str = "HEAD") -> str:
     """Generate a grouped changelog for a commit range (e.g. v1.2.0..v1.3.0)."""
-    fmt = "%x00type=%h%x00scope=%s%x00author=%aN%x00date=%aI"
-    raw = git("log", "--pretty=format:" + fmt, f"{since}..{until}")
-    commits = [parse_commit(l) for l in raw.splitlines() if l.strip()]
-    if not commits:
-        return "No commits found in that range."
-    lines = [f"## Changelog ({since} → {until})", ""]
-    for c in commits:
-        lines.append(f"- **{c.get('scope', '?')}** — {c.get('type', '?')} "
-                     f"({c.get('author', '?')}, {c.get('date', '?')[:10]})")
-    return "\n".join(lines)
+    try:
+        # Default range assumes >=20 commits exist; clamp for small/young repos
+        # instead of failing with "unknown revision".
+        if since == "HEAD~20":
+            total = commit_count()
+            if total == 0:
+                return "No commits found in that range."
+            since = f"HEAD~{min(20, total - 1)}" if total > 1 else "HEAD"
+            if since == "HEAD":
+                # Single-commit repo: show that one commit.
+                raw = git("log", "--pretty=format:" + "%x00type=%h%x00scope=%s%x00author=%aN%x00date=%aI", "-1")
+                commits = [parse_commit(l) for l in raw.splitlines() if l.strip()]
+                lines = [f"## Changelog ({since} → {until})", ""]
+                for c in commits:
+                    lines.append(f"- **{c.get('scope', '?')}** — {c.get('type', '?')} "
+                                 f"({c.get('author', '?')}, {c.get('date', '?')[:10]})")
+                return "\n".join(lines)
+
+        fmt = "%x00type=%h%x00scope=%s%x00author=%aN%x00date=%aI"
+        raw = git("log", "--pretty=format:" + fmt, f"{since}..{until}")
+        commits = [parse_commit(l) for l in raw.splitlines() if l.strip()]
+        if not commits:
+            return "No commits found in that range."
+        lines = [f"## Changelog ({since} → {until})", ""]
+        for c in commits:
+            lines.append(f"- **{c.get('scope', '?')}** — {c.get('type', '?')} "
+                         f"({c.get('author', '?')}, {c.get('date', '?')[:10]})")
+        return "\n".join(lines)
+    except GitError as exc:
+        return f"Error: {exc}"
 
 
 @mcp.tool()
 def analyze_commit(sha: str) -> str:
     """Explain a specific commit's intent and impact."""
-    fmt = "%x00sha=%h%x00subject=%s%x00body=%b%x00author=%aN%x00date=%aI"
-    raw = git("show", "--pretty=format:" + fmt, sha)
-    c = parse_commit(raw)
-    stat = git("show", "--stat", "--format=", sha)
-    return (
-        f"Commit {c.get('sha')} by {c.get('author')} on {c.get('date', '')[:10]}\n"
-        f"Subject: {c.get('subject')}\n\n"
-        f"Body:\n{c.get('body', '(none)')}\n\n"
-        f"Impact:\n{stat}"
-    )
+    try:
+        fmt = "%x00sha=%h%x00subject=%s%x00body=%b%x00author=%aN%x00date=%aI"
+        raw = git("show", "--pretty=format:" + fmt, sha)
+        c = parse_commit(raw)
+        stat = git("show", "--stat", "--format=", sha)
+        return (
+            f"Commit {c.get('sha')} by {c.get('author')} on {c.get('date', '')[:10]}\n"
+            f"Subject: {c.get('subject')}\n\n"
+            f"Body:\n{c.get('body', '(none)') or '(none)'}\n\n"
+            f"Impact:\n{stat}"
+        )
+    except GitError as exc:
+        return f"Error: {exc}"
 
 
 @mcp.tool()
 def blame_file(path: str) -> str:
     """Line-level attribution for a file (who, when, which commit)."""
-    raw = git("blame", "--line-porcelain", path)
+    try:
+        raw = git("blame", "--line-porcelain", path)
+    except GitError as exc:
+        return f"Error: {exc}"
+    if not raw:
+        return f"No blame data for '{path}' (file may be empty or untracked)."
     out, cur = [], {}
     for line in raw.splitlines():
         if line.startswith("author "):
@@ -101,25 +140,37 @@ def blame_file(path: str) -> str:
                 int(line.split(" ", 1)[1])
             ).strftime("%Y-%m-%d")
         elif line.startswith("\t"):
-            out.append(f"{cur.get('time')} {cur.get('author'):<20} {line.strip()}")
-    return "\n".join(out)
+            author = cur.get("author") or "unknown"
+            time = cur.get("time") or "----------"
+            out.append(f"{time} {author:<20} {line.strip()}")
+    return "\n".join(out) if out else f"No blame data for '{path}'."
 
 
 @mcp.tool()
 def release_notes(from_tag: str, to_tag: str) -> str:
     """Draft release notes between two tags."""
-    raw = git("log", "--pretty=format:%s", f"{from_tag}..{to_tag}")
+    try:
+        raw = git("log", "--pretty=format:%s", f"{from_tag}..{to_tag}")
+    except GitError as exc:
+        return f"Error: {exc}"
     lines = [f"## Release notes ({from_tag} → {to_tag})", ""]
     for subject in raw.splitlines():
         if subject.strip():
             lines.append(f"- {subject}")
+    if len(lines) == 2:
+        return f"No commits found between {from_tag} and {to_tag}."
     return "\n".join(lines)
 
 
 @mcp.tool()
 def repo_health() -> str:
     """Contributor + churn summary for the repo."""
-    raw = git("shortlog", "-sn", "--all")
+    try:
+        raw = git("shortlog", "-sn", "--all")
+    except GitError as exc:
+        return f"Error: {exc}"
+    if not raw:
+        return "## Contributors (0)\n\nNo commits yet."
     lines = [f"## Contributors ({len(raw.splitlines())})", ""]
     for entry in raw.splitlines()[:10]:
         lines.append(f"- {entry.strip()}")
@@ -129,8 +180,11 @@ def repo_health() -> str:
 @mcp.tool()
 def search_commits(query: str) -> str:
     """Find commits by message, author, or date."""
-    raw = git("log", "--pretty=format:%h %ad %an %s",
-              "--date=short", f"--grep={query}", "-i")
+    try:
+        raw = git("log", "--pretty=format:%h %ad %an %s",
+                  "--date=short", f"--grep={query}", "-i")
+    except GitError as exc:
+        return f"Error: {exc}"
     return raw if raw else f"No commits matched '{query}'."
 
 
@@ -140,8 +194,8 @@ def search_commits(query: str) -> str:
 def main() -> None:
     global REPO
     parser = argparse.ArgumentParser(description="gitlog-mcp server")
-    parser.add_argument("--repo", type=Path, required=True,
-                        help="Path to the git repository to serve")
+    parser.add_argument("--repo", type=Path, default=Path.cwd(),
+                        help="Path to the git repository to serve (default: cwd)")
     args = parser.parse_args()
     REPO = args.repo.resolve()
     if not (REPO / ".git").exists():

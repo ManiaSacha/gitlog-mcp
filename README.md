@@ -32,7 +32,8 @@ AI coding agents are great at *writing* code but famously bad at *knowing the hi
 # 1. Install
 pip install gitlog-mcp
 
-# 2. Run standalone (for testing)
+# 2. Run standalone (for testing) — defaults to the current directory
+gitlog-mcp
 gitlog-mcp --repo /path/to/your/repo
 
 # 3. Or add to Claude Code / Cursor
@@ -88,7 +89,7 @@ PRs welcome. Small, focused, well-tested changes only. See [CONTRIBUTING.md](CON
 
 ## Roadmap
 
-- [ ] `--repo` auto-detection from cwd
+- [x] `--repo` auto-detection from cwd
 - [ ] Structured JSON output for all tools
 - [ ] GitHub/GitLab remote integration
 - [ ] Tests + CI badge

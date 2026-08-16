@@ -10,7 +10,7 @@ Maintained by the PM agent. Ordered by impact vs. effort.
 - [ ] Tests + CI badge
 
 ## Next (v0.2)
-- [ ] `--repo` auto-detection from cwd
+- [x] `--repo` auto-detection from cwd
 - [ ] Structured JSON output for all tools
 - [ ] Test suite + fixtures
 

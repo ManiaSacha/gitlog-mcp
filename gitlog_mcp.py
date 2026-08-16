@@ -40,12 +40,29 @@ def git(*args: str) -> str:
             text=True,
             check=True,
             stdin=subprocess.DEVNULL,
+            timeout=30,
         )
         return proc.stdout.strip()
     except subprocess.CalledProcessError as exc:
         raise GitError(f"git {args[0]} failed: {exc.stderr.strip()}") from exc
+    except subprocess.TimeoutExpired as exc:
+        raise GitError(f"git {args[0]} timed out after {exc.timeout:.0f}s.") from exc
     except FileNotFoundError as exc:
         raise GitError("git executable not found on PATH.") from exc
+
+
+def reject_flag_like(value: str, label: str) -> str | None:
+    """Refuse refs/tags that start with '-'.
+
+    Git treats a bare argv token starting with '-' as an option rather than a
+    revision (e.g. '--output=../evil.txt' smuggled in as `since`), which can
+    turn `git log`/`git show` into an arbitrary-file-write primitive. Real
+    git refs and tags never start with '-' (git's own check-ref-format
+    forbids it), so any value that does is rejected outright.
+    """
+    if value.startswith("-"):
+        return f"Error: invalid {label} '{value}' — refs/tags cannot start with '-'."
+    return None
 
 
 def parse_commit(line: str) -> dict:
@@ -73,6 +90,9 @@ def commit_count() -> int:
 @mcp.tool()
 def changelog(since: str = "HEAD~20", until: str = "HEAD") -> str:
     """Generate a grouped changelog for a commit range (e.g. v1.2.0..v1.3.0)."""
+    err = reject_flag_like(since, "since") or reject_flag_like(until, "until")
+    if err:
+        return err
     try:
         fmt = "%x00type=%h%x00scope=%s%x00author=%aN%x00date=%aI"
 
@@ -109,6 +129,9 @@ def changelog(since: str = "HEAD~20", until: str = "HEAD") -> str:
 @mcp.tool()
 def analyze_commit(sha: str) -> str:
     """Explain a specific commit's intent and impact."""
+    err = reject_flag_like(sha, "sha")
+    if err:
+        return err
     try:
         fmt = "%x00sha=%h%x00subject=%s%x00body=%b%x00author=%aN%x00date=%aI"
         raw = git("show", "--pretty=format:" + fmt, sha)
@@ -128,7 +151,10 @@ def analyze_commit(sha: str) -> str:
 def blame_file(path: str) -> str:
     """Line-level attribution for a file (who, when, which commit)."""
     try:
-        raw = git("blame", "--line-porcelain", path)
+        # `--` forces `path` to be treated strictly as a pathspec, not an
+        # option — without it, a path like '--contents=../secret.txt' makes
+        # git blame echo back the contents of an arbitrary file on disk.
+        raw = git("blame", "--line-porcelain", "--", path)
     except GitError as exc:
         return f"Error: {exc}"
     if not raw:
@@ -151,6 +177,9 @@ def blame_file(path: str) -> str:
 @mcp.tool()
 def release_notes(from_tag: str, to_tag: str) -> str:
     """Draft release notes between two tags."""
+    err = reject_flag_like(from_tag, "from_tag") or reject_flag_like(to_tag, "to_tag")
+    if err:
+        return err
     try:
         raw = git("log", "--pretty=format:%s", f"{from_tag}..{to_tag}")
     except GitError as exc:

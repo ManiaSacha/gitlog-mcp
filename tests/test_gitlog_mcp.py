@@ -97,3 +97,52 @@ def test_release_notes_no_commits(tmp_path):
     subprocess.run(["git", "tag", "v1.0.0"], cwd=repo, check=True)
     out = _run_server(repo, "release_notes", "v1.0.0", "v1.0.0")
     assert "No commits found" in out
+
+
+# --------------------------------------------------------------------------- #
+# Security regressions: git argument injection.
+#
+# `since`/`sha`/tag values are passed to `git` as bare argv tokens. A value
+# starting with '-' (e.g. "--output=../evil.txt") is parsed by git as an
+# *option* rather than a revision, which can turn `git log`/`git show` into
+# an arbitrary-file-write primitive reachable directly from an MCP client.
+# --------------------------------------------------------------------------- #
+
+def test_analyze_commit_rejects_flag_like_sha(tmp_path):
+    repo = _make_fixture_repo(tmp_path)
+    evil_target = tmp_path / "evil.txt"
+    out = _run_server(repo, "analyze_commit", f"--output={evil_target}")
+    assert "Error" in out
+    assert not evil_target.exists()
+
+
+def test_changelog_rejects_flag_like_since(tmp_path):
+    repo = _make_fixture_repo(tmp_path)
+    evil_target = tmp_path / "evil2.txt"
+    out = _run_server(repo, "changelog", f"--output={evil_target}", "HEAD")
+    assert "Error" in out
+    assert not evil_target.exists()
+
+
+def test_changelog_rejects_flag_like_until(tmp_path):
+    repo = _make_fixture_repo(tmp_path)
+    out = _run_server(repo, "changelog", "HEAD~1", "--force")
+    assert "Error" in out
+
+
+def test_release_notes_rejects_flag_like_tag(tmp_path):
+    repo = _make_fixture_repo(tmp_path)
+    evil_target = tmp_path / "evil3.txt"
+    out = _run_server(repo, "release_notes", f"--output={evil_target}", "HEAD")
+    assert "Error" in out
+    assert not evil_target.exists()
+
+
+def test_blame_file_flag_like_path_does_not_leak_or_crash(tmp_path):
+    """A path starting with '-' must not be interpreted as a git option.
+    The `--` separator forces it to be treated strictly as a pathspec."""
+    repo = _make_fixture_repo(tmp_path)
+    secret = tmp_path / "secret.txt"
+    secret.write_text("TOP SECRET DATA 12345\n")
+    out = _run_server(repo, "blame_file", f"--contents={secret}")
+    assert "TOP SECRET" not in out

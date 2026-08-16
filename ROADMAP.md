@@ -19,10 +19,10 @@ Maintained by the PM agent. Ordered by impact vs. effort.
 - [ ] GitHub/GitLab remote integration
 - [ ] Multi-repo mode
 - [ ] Performance tuning for 10k+ commit repos
+- [x] Web UI companion (optional `[ui]` extra, `gitlog-mcp-ui`)
 
 ## Ideas being evaluated (PM triage)
 - Docker image for zero-setup use
-- Web UI companion
 - Plugin for Cursor / Windsurf specifically
 
 ## Rejected / on hold

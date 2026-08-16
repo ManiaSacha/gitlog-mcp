@@ -44,6 +44,8 @@ gitlog-mcp --repo /path/to/your/repo
 
 > `pip install gitlog-mcp` will work once this is published to PyPI. Until then, install from source as shown above. There's a real, tested publish pipeline ready to go (tag-triggered, PyPI Trusted Publishing) — see [RELEASING.md](RELEASING.md) for the full process.
 
+> Want the [local web dashboard](#web-dashboard-optional) too? It's an optional extra, not installed by default: `pip install -e ".[ui]"` (or `pip install "gitlog-mcp[ui]"` once on PyPI). Plain `pip install gitlog-mcp` stays exactly as dependency-free as ever.
+
 ### Claude Code config
 
 ```json
@@ -96,6 +98,27 @@ npx @modelcontextprotocol/inspector gitlog-mcp --repo .
 | `release_notes` | Draft release notes between two tags |
 | `repo_health` | Contributor + churn summary |
 | `search_commits` | Find commits by message/author/date |
+
+## Web dashboard (optional)
+
+Prefer a browser to a terminal? `gitlog-mcp-ui` serves a small local dashboard on top of the same git-reading code the MCP tools use — same data, human-readable.
+
+```bash
+pip install "gitlog-mcp[ui]"
+gitlog-mcp-ui --repo /path/to/repo
+```
+
+This prints a URL (`http://127.0.0.1:8765` by default) — open it in your browser; it won't open one for you.
+
+| View | What it shows |
+|------|-------------|
+| Changelog | Commit range picker (`since` / `until`) |
+| Repo Health | Contributor stats, commit totals |
+| Blame | Per-file, per-line attribution |
+
+Read-only — no write actions anywhere. Local-only by construction: binds to `127.0.0.1` only (there's no `--host` flag, so it can't be exposed to the network even by accident), and validates every request's `Host` header too, closing the DNS-rebinding gap a loopback bind alone doesn't cover. No auth needed, because nothing but your own machine can reach it.
+
+It's an optional extra (`pip install gitlog-mcp[ui]`), not installed by default. The core `gitlog-mcp` server has zero runtime dependencies beyond the MCP SDK, full stop — the dashboard doesn't change that. It's `http.server` from the stdlib, no framework, no extra deps of its own.
 
 ## Architecture
 

@@ -11,7 +11,8 @@
         "--repo",
         "."
       ],
-      "port": 6274
+      "port": 6274,
+      "autoPort": true
     }
   ]
 }

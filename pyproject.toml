@@ -20,6 +20,9 @@ classifiers = [
     "Topic :: Software Development :: Version Control",
 ]
 
+[project.optional-dependencies]
+test = ["pytest>=7.0"]
+
 [project.scripts]
 gitlog-mcp = "gitlog_mcp:main"
 

@@ -6,7 +6,8 @@ build-backend = "setuptools.build_meta"
 name = "gitlog-mcp"
 version = "0.1.0"
 description = "Give AI agents superpowers over git history — changelogs, commit analysis, blame, and release notes via MCP."
-read-dependencies = [
+readme = "README.md"
+dependencies = [
     "mcp>=1.0",
 ]
 requires-python = ">=3.10"
@@ -23,7 +24,7 @@ classifiers = [
 gitlog-mcp = "gitlog_mcp:main"
 
 [tool.setuptools]
-packages = ["gitlog_mcp"]
+py-modules = ["gitlog_mcp"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

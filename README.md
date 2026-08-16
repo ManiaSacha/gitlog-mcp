@@ -29,8 +29,10 @@ AI coding agents are great at *writing* code but famously bad at *knowing the hi
 ## Quick start
 
 ```bash
-# 1. Install
-pip install gitlog-mcp
+# 1. Install (not yet on PyPI — install from source)
+git clone https://github.com/ManiaSacha/gitlog-mcp.git
+cd gitlog-mcp
+pip install -e .
 
 # 2. Run standalone (for testing) — defaults to the current directory
 gitlog-mcp
@@ -39,6 +41,8 @@ gitlog-mcp --repo /path/to/your/repo
 # 3. Or add to Claude Code / Cursor
 npx @modelcontextprotocol/inspector gitlog-mcp --repo .
 ```
+
+> `pip install gitlog-mcp` will work once this is published to PyPI. Until then, install from source as shown above.
 
 ### Claude Code config
 

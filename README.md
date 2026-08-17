@@ -12,6 +12,10 @@
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Zero deps](https://img.shields.io/badge/Zero%20runtime%20deps-%E2%9C%93-brightgreen)
 
+<p align="center">
+  <img src="public/gitlog-mcp.gif" alt="gitlog-mcp demo" width="720">
+</p>
+
 ---
 
 ## Why this exists

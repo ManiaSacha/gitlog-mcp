@@ -5,9 +5,8 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and
 this project adheres to [Semantic Versioning](https://semver.org/).
 
-No version of `gitlog-mcp` has been published to PyPI yet. `v0.1.2` below is
-the first tagged release, covering everything from the initial commit
-through the current `main`.
+`v0.1.2` below is the first tagged release, covering everything from the
+initial commit through the current `main`.
 
 ## [Unreleased]
 

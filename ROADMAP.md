@@ -13,7 +13,7 @@ Maintained by the PM agent. Ordered by impact vs. effort.
 - [x] `--repo` auto-detection from cwd
 - [ ] Structured JSON output for all tools
 - [x] Test suite + fixtures
-- [ ] Publish to PyPI (`pip install gitlog-mcp`)
+- [x] Publish to PyPI (`pip install gitlog-mcp`)
 
 ## Later (v0.3+)
 - [ ] GitHub/GitLab remote integration

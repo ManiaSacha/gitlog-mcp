@@ -34,10 +34,8 @@ AI coding agents are great at *writing* code but famously bad at *knowing the hi
 ## Quick start
 
 ```bash
-# 1. Install (not yet on PyPI — install from source)
-git clone https://github.com/ManiaSacha/gitlog-mcp.git
-cd gitlog-mcp
-pip install -e .
+# 1. Install from PyPI
+pip install gitlog-mcp
 
 # 2. Run standalone (for testing) — defaults to the current directory
 gitlog-mcp
@@ -46,9 +44,9 @@ gitlog-mcp --repo /path/to/your/repo
 # 3. Or add directly to your agent's MCP config (see below)
 ```
 
-> `pip install gitlog-mcp` will work once this is published to PyPI. Until then, install from source as shown above. There's a real, tested publish pipeline ready to go (tag-triggered, PyPI Trusted Publishing) — see [RELEASING.md](RELEASING.md) for the full process.
+> Want the [local web dashboard](#web-dashboard-optional) too? It's an optional extra, not installed by default: `pip install "gitlog-mcp[ui]"`. Plain `pip install gitlog-mcp` stays exactly as dependency-free as ever.
 
-> Want the [local web dashboard](#web-dashboard-optional) too? It's an optional extra, not installed by default: `pip install -e ".[ui]"` (or `pip install "gitlog-mcp[ui]"` once on PyPI). Plain `pip install gitlog-mcp` stays exactly as dependency-free as ever.
+> **Installing from source** (for contributors): `git clone https://github.com/ManiaSacha/gitlog-mcp.git && cd gitlog-mcp && pip install -e .` — see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 ### Claude Code config
 

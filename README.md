@@ -6,6 +6,7 @@
 
 > "What changed in this repo?" is the question every AI agent gets wrong. This fixes it.
 
+![PyPI](https://img.shields.io/pypi/v/gitlog-mcp)
 ![CI](https://github.com/ManiaSacha/gitlog-mcp/actions/workflows/ci.yml/badge.svg)
 ![GitHub stars](https://img.shields.io/github/stars/ManiaSacha/gitlog-mcp)
 ![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB)
@@ -74,6 +75,19 @@ gitlog-mcp --repo /path/to/your/repo
 }
 ```
 
+### Windsurf config
+
+```json
+{
+  "mcpServers": {
+    "gitlog": {
+      "command": "gitlog-mcp",
+      "args": ["--repo", "."]
+    }
+  }
+}
+```
+
 ### Debug it standalone
 
 Want to poke at the tools directly before wiring up an agent? The [MCP Inspector](https://github.com/modelcontextprotocol/inspector) gives you a UI to call each tool by hand:
@@ -125,7 +139,7 @@ It's an optional extra (`pip install gitlog-mcp[ui]`), not installed by default.
 ## Architecture
 
 ```
-gitlog-mcp (single file, ~250 lines)
+gitlog-mcp (single file, ~300 lines)
 ├── FastMCP server (stdio transport)
 ├── GitRunner — thin wrapper over `git` CLI
 └── Tools — each maps to a git subcommand + parsing

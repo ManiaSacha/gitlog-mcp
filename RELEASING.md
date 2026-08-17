@@ -110,9 +110,8 @@ publish.
    ```
 
 5. **Update README if behavior changed.**
-   In particular, once the first release is actually published, remove the
-   "not yet on PyPI — install from source" caveat from `README.md`'s Quick
-   start section, since `pip install gitlog-mcp` will then really work.
+   Review the Quick start, Tools table, and Web dashboard sections for
+   accuracy with the new release.
 
 6. **(Optional) Test the build locally before tagging.**
    `python -m build` is not a project dependency (runtime or test) — it's

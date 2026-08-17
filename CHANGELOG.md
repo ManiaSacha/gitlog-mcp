@@ -12,6 +12,20 @@ initial commit through the current `main`.
 
 Nothing yet.
 
+## [v0.1.3] - 2026-08-17
+
+### Added
+- Embedded visual demo GIF (`public/gitlog-mcp.gif`) at the top of `README.md`.
+- `SECURITY.md` defining vulnerability disclosure policy and SLA.
+- `CODE_OF_CONDUCT.md` (Contributor Covenant v2.1).
+- GitHub issue templates for bug reports and feature requests.
+- Python 3.13 added to the CI matrix in `.github/workflows/ci.yml`.
+- Windsurf MCP configuration instructions in `README.md`.
+
+### Changed
+- Updated README quickstart to reflect live PyPI availability (`pip install gitlog-mcp`).
+- Added live PyPI version badge to README.
+
 ## [v0.1.2] - 2026-08-16
 
 ### Added
@@ -102,5 +116,6 @@ Nothing yet.
 - Added this `CHANGELOG.md`, generated from the project's actual git
   history.
 
-[Unreleased]: https://github.com/ManiaSacha/gitlog-mcp/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/ManiaSacha/gitlog-mcp/compare/v0.1.3...HEAD
+[v0.1.3]: https://github.com/ManiaSacha/gitlog-mcp/compare/v0.1.2...v0.1.3
 [v0.1.2]: https://github.com/ManiaSacha/gitlog-mcp/releases/tag/v0.1.2

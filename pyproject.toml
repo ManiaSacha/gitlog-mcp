@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gitlog-mcp"
-version = "0.1.2"
+version = "0.1.3"
 description = "Give AI agents superpowers over git history — changelogs, commit analysis, blame, and release notes via MCP."
 readme = "README.md"
 dependencies = [
